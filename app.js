@@ -92,7 +92,7 @@ client.on("ready", () => {
     let commands = client.commands;
 
     commands?.create({
-        name: "getcovidstat",
+        name: "getCovidStat",
         description: "get covid stat",
     });
 });
