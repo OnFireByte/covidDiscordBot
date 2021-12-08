@@ -52,8 +52,22 @@ const fetchAPI = async () => {
     updateData();
 };
 
-schedule.scheduleJob("0 0 8 * *", () => {
-    fetchAPI();
+const messageToChannels = () => {
+    fs.readFile("./Data/channels.json", "utf8", async (err, data) => {
+        if (!data) {
+            return;
+        }
+        channelArr = JSON.parse(data);
+        channelArr.forEach((channelID) => {
+            client.channels.cache.get(channelID).send();
+        });
+    });
+};
+
+// fectch data at 8 am everyday
+schedule.scheduleJob({ hour: 8, dayOfWeek: 0 }, async () => {
+    await fetchAPI();
+    messageToChannels();
 });
 
 let covidEmbedMessage = () =>
@@ -101,6 +115,24 @@ client.on("ready", () => {
         name: "getcovidstat",
         description: "get covid stat",
     });
+
+    commands?.create({
+        name: "xdd",
+        description: "ddd",
+    });
+
+    commands?.create({
+        name: "dailyStat",
+        description: "choose to get covid stat every morning!",
+        options: [
+            {
+                name: "status",
+                description: "true if you want to get daily stat, false if you don't.",
+                require: true,
+                type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
+            },
+        ],
+    });
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -110,7 +142,51 @@ client.on("interactionCreate", async (interaction) => {
 
     if (commandName === "getcovidstat") {
         updateData(() => interaction.reply({ embeds: [covidEmbedMessage()] }));
-    } else if (commandName === "registerDailyStat") {
+    } else if (commandName === "dailyStat") {
+        const status = options[0];
+        if (status) {
+            const channels = await JSON.parse(fs.readFileSync("./Data/channels.json"));
+            if (channels.includes(interaction.channelId)) {
+                interaction.reply("This channel is already registered");
+                return;
+            }
+
+            fs.writeFile(
+                "./Data/channels.json",
+                JSON.stringify([...channels, interaction.channelId]),
+                (err) => {
+                    if (err) {
+                        interaction.reply(
+                            "Sorry, but something went wrong. Please try again later."
+                        );
+                        return;
+                    }
+                    interaction.reply(
+                        "Successfully add this channels to list, you will get the message every 8 am."
+                    );
+                }
+            );
+        } else if (!status) {
+            const channels = await JSON.parse(fs.readFileSync("./Data/channels.json"));
+            if (!channels.includes(interaction.channelId)) {
+                interaction.reply("This channel is not registered");
+                return;
+            }
+
+            fs.writeFile(
+                "./Data/channels.json",
+                JSON.stringify(channels.filter((x) => x !== interaction.channelId)),
+                (err) => {
+                    if (err) {
+                        interaction.reply(
+                            "Sorry, but something went wrong. Please try again later."
+                        );
+                        return;
+                    }
+                    interaction.reply("Successfully unregister this channel.");
+                }
+            );
+        }
     }
 });
 
