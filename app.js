@@ -81,8 +81,8 @@ let covidEmbedMessage = () =>
             },
             { name: "\u200B", value: "\u200B" },
             { name: "🤒 Total Case", value: todayData.total_case.comma(), inline: true },
-            { name: "😥 Total Death", value: todayData.total_case.comma(), inline: true },
-            { name: "😊 Total Recovered", value: todayData.total_case.comma(), inline: true }
+            { name: "😥 Total Death", value: todayData.total_death.comma(), inline: true },
+            { name: "😊 Total Recovered", value: todayData.total_recovered.comma(), inline: true }
         )
         .setTitle("Total Stat");
 
