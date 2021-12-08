@@ -15,31 +15,15 @@ Number.prototype.comma = function () {
 const diff = (a, b) => {
     return a - b >= 0 ? `+${(a - b).comma()}` : `-${(b - a).comma()}`;
 };
-
-const FetchAPI = async () => {
-    const rawData = await axios({
-        method: "get",
-        url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
-    });
-    const data = await rawData.data;
-
-    fs.writeFile("./Data/cache.json", JSON.stringify(data), (err) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("Successfully update cache.json");
+let cacheData;
+let todayData;
+let yesterdayData;
+const updateData = (func = () => {}) => {
+    fs.readFile("./Data/data.json", "utf8", async (err, data) => {
+        if (!data) {
+            await fetchAPI();
+            return;
         }
-    });
-};
-
-schedule.scheduleJob("0 0 8 * *", () => {
-    FetchAPI();
-});
-
-let cacheData = JSON.parse(fs.readFileSync("./Data/data.json"));
-
-const updateData = (func) => {
-    fs.readFile("./Data/data.json", "utf8", (err, data) => {
         cacheData = JSON.parse(data);
         todayData = cacheData[cacheData.length - 1];
         yesterdayData = cacheData[cacheData.length - 2];
@@ -47,8 +31,30 @@ const updateData = (func) => {
     });
 };
 
-let todayData = cacheData[cacheData.length - 1];
-let yesterdayData = cacheData[cacheData.length - 2];
+updateData();
+console.log("Updating Data...");
+
+const fetchAPI = async () => {
+    const rawData = await axios({
+        method: "get",
+        url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
+    });
+    const data = await rawData.data;
+
+    fs.writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), (err) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("Successfully update data.json");
+        }
+    });
+
+    updateData();
+};
+
+schedule.scheduleJob("0 0 8 * *", () => {
+    fetchAPI();
+});
 
 let covidEmbedMessage = () =>
     new Discord.MessageEmbed()
@@ -87,7 +93,7 @@ let covidEmbedMessage = () =>
         .setFooter(`Update Date: ${todayData.update_date}`);
 
 client.on("ready", () => {
-    console.log("The bot is ready!");
+    console.log("\x1b[36m%s\x1b[0m", "The bot is online!");
 
     let commands = client.commands;
 
