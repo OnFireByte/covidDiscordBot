@@ -4,7 +4,7 @@
 
 ## Init Setup
 
-You have to do this on the first time.
+You have to do this on the first time. No need after that
 
 1. install module
 
@@ -12,13 +12,13 @@ You have to do this on the first time.
  npm install
 ```
 
-2. Create .env file on root director
+2. Create ".env" file in root directory
 
 ```bash
  touch .env
 ```
 
-3. in .env file add this text and your bot's token after that (Do not use whitespace)
+3. In .env file, add this text and your bot's token after that (Do not use whitespace)
 
 ```bash
 DISCORD_TOKEN=#Your Token Here
@@ -37,3 +37,22 @@ or
 ```bash
  node .
 ```
+
+## Usage
+
+These are available command.
+
+1. Get today data now
+
+```
+ /getcovidstat
+```
+
+2. Register Daily Data Message
+
+```
+ /dailystat True|False
+```
+
+> The same message as /getcovidstat but it will automatically send the message at 8 am every day on that channel.
+> True to get message, False to don't, False by default.
