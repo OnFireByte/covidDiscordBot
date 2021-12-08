@@ -3,11 +3,8 @@ const axios = require("axios");
 const fs = require("fs");
 const schedule = require("node-schedule");
 const Discord = require("discord.js");
-const { Intents } = require("discord.js");
 const intents = new Discord.Intents(32767);
-const client = new Discord.Client({
-    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
-});
+const client = new Discord.Client({ intents });
 
 Number.prototype.comma = function () {
     return this.valueOf()
@@ -57,18 +54,26 @@ const fetchAPI = async () => {
 
 const messageToChannels = () => {
     fs.readFile("./Data/channel.json", "utf8", async (err, data) => {
-        if (!data) {
+        channelArr = JSON.parse(data);
+        if (!channelArr) {
             return;
         }
-        channelArr = JSON.parse(data);
+        console.log(channelArr);
         channelArr.forEach((channelID) => {
-            client.channels.cache.get(channelID).send();
+            client.channels.cache.get(channelID)?.send({ embeds: [covidEmbedMessage()] });
         });
     });
 };
 
+let timerule = new schedule.RecurrenceRule();
+// 8 am at bangkok
+timerule.tz = "Asia/Bangkok";
+timerule.second = 0;
+timerule.minute = 0;
+timerule.hour = 8;
+
 // fectch data at 8 am everyday
-schedule.scheduleJob({ hour: 8, dayOfWeek: 0 }, async () => {
+schedule.scheduleJob(timerule, async () => {
     await fetchAPI();
     messageToChannels();
 });
@@ -112,20 +117,13 @@ let covidEmbedMessage = () =>
 client.on("ready", () => {
     console.log("\x1b[36m%s\x1b[0m", "The bot is online!");
 
-    const guildId = "918061578371342336";
-    const guild = client.guilds.cache.get(guildId);
-    let commands;
-    if (guild) {
-        commands = guild.commands;
-    } else {
-        commands = client.application?.commands;
-    }
-    commands?.create({
+    let commands = client.application.commands;
+    commands.create({
         name: "getcovidstat",
         description: "get covid stat",
     });
     console.log("create command");
-    commands?.create({
+    commands.create({
         name: "dailystat",
         description: "choose to get covid stat every morning!",
         options: [
