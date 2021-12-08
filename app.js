@@ -92,7 +92,7 @@ client.on("ready", () => {
     let commands = client.commands;
 
     commands?.create({
-        name: "getCovidStat",
+        name: "getcovidstat",
         description: "get covid stat",
     });
 });
@@ -102,7 +102,7 @@ client.on("interactionCreate", async (interaction) => {
 
     const { commandName, options } = interaction;
 
-    if (commandName === "getCovidStat") {
+    if (commandName === "getcovidstat") {
         updateData(() => interaction.reply({ embeds: [covidEmbedMessage()] }));
     } else if (commandName === "registerDailyStat") {
     }
