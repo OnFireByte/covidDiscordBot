@@ -4,13 +4,25 @@
 
 ## Init Setup
 
-You have to do this on the first time. Simply just.
+You have to do this on the first time.
+
+1. install module
 
 ```bash
  npm install
 ```
 
-and done!
+2. Create .env file on root director
+
+```bash
+ touch .env
+```
+
+3. in .env file add this text and your bot's token after that (Do not use whitespace)
+
+```bash
+DISCORD_TOKEN=#Your Token Here
+```
 
 ## How to run
 
