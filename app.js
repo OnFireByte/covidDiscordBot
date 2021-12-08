@@ -122,7 +122,7 @@ client.on("ready", () => {
         name: "getcovidstat",
         description: "get covid stat",
     });
-    console.log("create command");
+
     commands.create({
         name: "dailystat",
         description: "choose to get covid stat every morning!",
