@@ -84,7 +84,7 @@ let covidEmbedMessage = () =>
             { name: "😥 Total Death", value: todayData.total_death.comma(), inline: true },
             { name: "😊 Total Recovered", value: todayData.total_recovered.comma(), inline: true }
         )
-        .setTitle("Total Stat");
+        .setFooter(`Update Date: ${todayData.update_date}`);
 
 client.on("ready", () => {
     console.log("The bot is ready!");
