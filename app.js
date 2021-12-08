@@ -3,8 +3,6 @@ const axios = require("axios");
 const fs = require("fs");
 const schedule = require("node-schedule");
 const Discord = require("discord.js");
-const config = require("./Data/config.json");
-const { SlashCommandBuilder } = require("@discordjs/builders");
 const intents = new Discord.Intents(32767);
 const client = new Discord.Client({ intents });
 
@@ -33,6 +31,10 @@ const FetchAPI = async () => {
         }
     });
 };
+
+schedule.scheduleJob("0 0 8 * *", () => {
+    FetchAPI();
+});
 
 let cacheData = JSON.parse(fs.readFileSync("./Data/data.json"));
 
@@ -107,3 +109,10 @@ client.on("interactionCreate", async (interaction) => {
 });
 
 client.login(process.env.DISCORD_TOKEN);
+
+process.on("SIGINT", function () {
+    client.destroy();
+    console.log("loging out the bot...");
+
+    process.exit();
+});
