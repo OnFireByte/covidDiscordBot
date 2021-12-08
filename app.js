@@ -3,8 +3,11 @@ const axios = require("axios");
 const fs = require("fs");
 const schedule = require("node-schedule");
 const Discord = require("discord.js");
+const { Intents } = require("discord.js");
 const intents = new Discord.Intents(32767);
-const client = new Discord.Client({ intents });
+const client = new Discord.Client({
+    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+});
 
 Number.prototype.comma = function () {
     return this.valueOf()
@@ -53,7 +56,7 @@ const fetchAPI = async () => {
 };
 
 const messageToChannels = () => {
-    fs.readFile("./Data/channels.json", "utf8", async (err, data) => {
+    fs.readFile("./Data/channel.json", "utf8", async (err, data) => {
         if (!data) {
             return;
         }
@@ -109,26 +112,27 @@ let covidEmbedMessage = () =>
 client.on("ready", () => {
     console.log("\x1b[36m%s\x1b[0m", "The bot is online!");
 
-    let commands = client.commands;
-
+    const guildId = "918061578371342336";
+    const guild = client.guilds.cache.get(guildId);
+    let commands;
+    if (guild) {
+        commands = guild.commands;
+    } else {
+        commands = client.application?.commands;
+    }
     commands?.create({
         name: "getcovidstat",
         description: "get covid stat",
     });
-
+    console.log("create command");
     commands?.create({
-        name: "xdd",
-        description: "ddd",
-    });
-
-    commands?.create({
-        name: "dailyStat",
+        name: "dailystat",
         description: "choose to get covid stat every morning!",
         options: [
             {
                 name: "status",
                 description: "true if you want to get daily stat, false if you don't.",
-                require: true,
+                required: true,
                 type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
             },
         ],
@@ -142,17 +146,17 @@ client.on("interactionCreate", async (interaction) => {
 
     if (commandName === "getcovidstat") {
         updateData(() => interaction.reply({ embeds: [covidEmbedMessage()] }));
-    } else if (commandName === "dailyStat") {
-        const status = options[0];
+    } else if (commandName === "dailystat") {
+        const status = options.getBoolean("status");
         if (status) {
-            const channels = await JSON.parse(fs.readFileSync("./Data/channels.json"));
+            const channels = await JSON.parse(fs.readFileSync("./Data/channel.json"));
             if (channels.includes(interaction.channelId)) {
                 interaction.reply("This channel is already registered");
                 return;
             }
 
             fs.writeFile(
-                "./Data/channels.json",
+                "./Data/channel.json",
                 JSON.stringify([...channels, interaction.channelId]),
                 (err) => {
                     if (err) {
@@ -167,14 +171,14 @@ client.on("interactionCreate", async (interaction) => {
                 }
             );
         } else if (!status) {
-            const channels = await JSON.parse(fs.readFileSync("./Data/channels.json"));
+            const channels = await JSON.parse(fs.readFileSync("./Data/channel.json"));
             if (!channels.includes(interaction.channelId)) {
                 interaction.reply("This channel is not registered");
                 return;
             }
 
             fs.writeFile(
-                "./Data/channels.json",
+                "./Data/channel.json",
                 JSON.stringify(channels.filter((x) => x !== interaction.channelId)),
                 (err) => {
                     if (err) {
