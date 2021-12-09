@@ -19,7 +19,7 @@ const diff = (a, b) => {
 let cacheData;
 let todayData;
 let yesterdayData;
-const updateData = (func = () => {}) => {
+const updateData = async (func = () => {}) => {
     console.log("Updating Data...");
     fs.readFile("./Data/data.json", "utf8", async (err, data) => {
         if (!data) {
@@ -29,16 +29,11 @@ const updateData = (func = () => {}) => {
         cacheData = JSON.parse(data);
         todayData = cacheData[cacheData.length - 1];
         yesterdayData = cacheData[cacheData.length - 2];
-        console.log("creating chart");
-        createChart(cacheData, "case", "Data/case.png");
-        createChart(cacheData, "death", "Data/death.png");
-        createChart(cacheData, "recovered", "Data/recovered.png");
         func();
     });
 };
 
 const fetchAPI = async () => {
-    console.log("Fetching Data...");
     const rawData = await axios({
         method: "get",
         url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
@@ -52,10 +47,15 @@ const fetchAPI = async () => {
             console.log("Successfully update data.json");
         }
     });
-
-    updateData();
+    updateData(() => {
+        console.log("updating chart...");
+        createChart(cacheData, "case", "Data/case.png");
+        createChart(cacheData, "death", "Data/death.png");
+        createChart(cacheData, "recovered", "Data/recovered.png");
+    });
 };
-
+console.log("Fetching Data...");
+console.log("Updating Data...");
 fetchAPI();
 
 const messageToChannels = () => {
@@ -126,7 +126,10 @@ let covidEmbedMessage = () =>
         .setFooter(`Update Date: ${todayData.update_date}`);
 
 client.on("ready", () => {
-    console.log("\x1b[36m%s\x1b[0m", "The bot is online!");
+    console.log(
+        "\x1b[36m%s\x1b[0m",
+        "The bot is online! But for some weird reason, you might have to wait a few minutes"
+    );
 
     let commands = client.application.commands;
     commands.create({
@@ -216,11 +219,20 @@ client.on("interactionCreate", async (interaction) => {
         }
     } else if (commandName === "getchart") {
         const type = options.getString("type");
-        if (!["case", "death", "recovered"].includes(type)) {
-            interaction.reply("Invalid type");
+        if (["case", "death", "recovered"].includes(type)) {
+            interaction.reply({ files: [`Data/${type}.png`] });
+            return;
+        } else if (type === "all") {
+            interaction.reply("Here you go!");
+            client.channels.cache
+                .get(interaction.channelId)
+                ?.send({ files: [`Data/case.png`, `Data/death.png`, `Data/recovered.png`] })
+                .catch((err) =>
+                    console.log(`${err.name}: ${err.message} on channel ID ${channelID}`)
+                );
             return;
         }
-        interaction.reply({ files: [`Data/${type}.png`] });
+        interaction.reply("Invalid type");
     }
 });
 
