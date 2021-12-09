@@ -228,7 +228,9 @@ client.on("interactionCreate", async (interaction) => {
                 .get(interaction.channelId)
                 ?.send({ files: [`Data/case.png`, `Data/death.png`, `Data/recovered.png`] })
                 .catch((err) =>
-                    console.log(`${err.name}: ${err.message} on channel ID ${channelID}`)
+                    console.log(
+                        `${err.name}: ${err.message} on channel ID ${interaction.channelId}`
+                    )
                 );
             return;
         }
