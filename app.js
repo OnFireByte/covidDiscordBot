@@ -31,9 +31,6 @@ const updateData = (func = () => {}) => {
     });
 };
 
-updateData();
-console.log("Updating Data...");
-
 const fetchAPI = async () => {
     const rawData = await axios({
         method: "get",
@@ -51,6 +48,10 @@ const fetchAPI = async () => {
 
     updateData();
 };
+
+fetchAPI();
+console.log("Fetching Data...");
+console.log("Updating Data...");
 
 const messageToChannels = () => {
     fs.readFile("./Data/channel.json", "utf8", async (err, data) => {
@@ -148,22 +149,13 @@ client.on("interactionCreate", async (interaction) => {
     const { commandName, options } = interaction;
 
     if (commandName === "getcovidstat") {
-        updateData(() => interaction.reply({ embeds: [covidEmbedMessage()] })).catch((err) =>
-            console.log(`${err.name}: ${err.message} on channel ID ${interaction.channelId}`)
-        );
+        updateData(() => interaction.reply({ embeds: [covidEmbedMessage()] }));
     } else if (commandName === "dailystat") {
         const status = options.getBoolean("status");
         if (status) {
             const channels = await JSON.parse(fs.readFileSync("./Data/channel.json"));
             if (channels.includes(interaction.channelId)) {
-                interaction
-                    .reply("This channel is already registered")
-                    .catch((err) => console.log(err))
-                    .catch((err) =>
-                        console.log(
-                            `${err.name}: ${err.message} on channel ID ${interaction.channelId}`
-                        )
-                    );
+                interaction.reply("This channel is already registered");
                 return;
             }
 
@@ -172,13 +164,9 @@ client.on("interactionCreate", async (interaction) => {
                 JSON.stringify([...channels, interaction.channelId]),
                 (err) => {
                     if (err) {
-                        interaction
-                            .reply("Sorry, but something went wrong. Please try again later.")
-                            .catch((err) =>
-                                console.log(
-                                    `${err.name}: ${err.message} on channel ID ${interaction.channelId}`
-                                )
-                            );
+                        interaction.reply(
+                            "Sorry, but something went wrong. Please try again later."
+                        );
                         return;
                     }
 
@@ -190,13 +178,7 @@ client.on("interactionCreate", async (interaction) => {
         } else if (!status) {
             const channels = await JSON.parse(fs.readFileSync("./Data/channel.json"));
             if (!channels.includes(interaction.channelId)) {
-                interaction
-                    .reply("This channel is not registered")
-                    .catch((err) =>
-                        console.log(
-                            `${err.name}: ${err.message} on channel ID ${interaction.channelId}`
-                        )
-                    );
+                interaction.reply("This channel is not registered");
                 return;
             }
 
@@ -205,22 +187,12 @@ client.on("interactionCreate", async (interaction) => {
                 JSON.stringify(channels.filter((x) => x !== interaction.channelId)),
                 (err) => {
                     if (err) {
-                        interaction
-                            .reply("Sorry, but something went wrong. Please try again later.")
-                            .catch((err) =>
-                                console.log(
-                                    `${err.name}: ${err.message} on channel ID ${interaction.channelId}`
-                                )
-                            );
+                        interaction.reply(
+                            "Sorry, but something went wrong. Please try again later."
+                        );
                         return;
                     }
-                    interaction
-                        .reply("Successfully unregister this channel.")
-                        .catch((err) =>
-                            console.log(
-                                `${err.name}: ${err.message} on channel ID ${interaction.channelId}`
-                            )
-                        );
+                    interaction.reply("Successfully unregister this channel.");
                 }
             );
         }
