@@ -5,7 +5,7 @@ const schedule = require("node-schedule");
 const Discord = require("discord.js");
 const intents = new Discord.Intents(32767);
 const client = new Discord.Client({ intents });
-const createChart = require("module/createChart.js");
+const createChart = require("./module/createChart.js");
 
 Number.prototype.comma = function () {
     return this.valueOf()
