@@ -5,6 +5,7 @@ const schedule = require("node-schedule");
 const Discord = require("discord.js");
 const intents = new Discord.Intents(32767);
 const client = new Discord.Client({ intents });
+const createChart = require("./module/createChart.js");
 
 Number.prototype.comma = function () {
     return this.valueOf()
@@ -19,6 +20,7 @@ let cacheData;
 let todayData;
 let yesterdayData;
 const updateData = (func = () => {}) => {
+    console.log("Updating Data...");
     fs.readFile("./Data/data.json", "utf8", async (err, data) => {
         if (!data) {
             await fetchAPI();
@@ -27,11 +29,16 @@ const updateData = (func = () => {}) => {
         cacheData = JSON.parse(data);
         todayData = cacheData[cacheData.length - 1];
         yesterdayData = cacheData[cacheData.length - 2];
+        console.log("creating chart");
+        createChart(cacheData, "case", "Data/case.png");
+        createChart(cacheData, "death", "Data/death.png");
+        createChart(cacheData, "recovered", "Data/recovered.png");
         func();
     });
 };
 
 const fetchAPI = async () => {
+    console.log("Fetching Data...");
     const rawData = await axios({
         method: "get",
         url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
@@ -50,8 +57,6 @@ const fetchAPI = async () => {
 };
 
 fetchAPI();
-console.log("Fetching Data...");
-console.log("Updating Data...");
 
 const messageToChannels = () => {
     fs.readFile("./Data/channel.json", "utf8", async (err, data) => {
@@ -141,6 +146,19 @@ client.on("ready", () => {
             },
         ],
     });
+
+    commands.create({
+        name: "getchart",
+        description: "get chart of lastest 30 days",
+        options: [
+            {
+                name: "type",
+                description: "type of chart: case, death, recovered",
+                required: true,
+                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+            },
+        ],
+    });
 });
 
 client.on("interactionCreate", async (interaction) => {
@@ -196,6 +214,13 @@ client.on("interactionCreate", async (interaction) => {
                 }
             );
         }
+    } else if (commandName === "getchart") {
+        const type = options.getString("type");
+        if (!["case", "death", "recovered"].includes(type)) {
+            interaction.reply("Invalid type");
+            return;
+        }
+        interaction.reply({ files: [`Data/${type}.png`] });
     }
 });
 
