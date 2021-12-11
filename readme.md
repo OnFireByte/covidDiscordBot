@@ -6,19 +6,24 @@
 
 You have to do this on the first time. No need after that
 
-1. install module
+1. clone repo
+```bash
+git clone https://github.com/OnFireByte/covidDiscordBot
+```
+
+2. install module
 
 ```bash
  npm install
 ```
 
-2. Create ".env" file in root directory
+3. Create ".env" file in root directory
 
 ```bash
  touch .env
 ```
 
-3. In .env file, add this text and your bot's token after that (Do not use whitespace)
+4. In .env file, add this text and your bot's token after that (Do not use whitespace)
 
 ```bash
 DISCORD_TOKEN=#Your Token Here
