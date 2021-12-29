@@ -76,6 +76,22 @@ const messageToChannels = () => {
     });
 };
 
+const dailyFetch = async () => {
+    const today = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
+    await fetchAPI();
+    fs.readFile("./Data/data.json", "utf8", async (err, data) => {
+        const cacheData = JSON.parse(data);
+        const newestData = cacheData[cacheData.length - 1];
+        const newestDate = Number(newestData.txn_date.split("-")[2]);
+        if (newestDate == today.getDate()) {
+            messageToChannels();
+            return;
+        }
+
+        setTimeout(dailyFetch, 3600);
+    });
+};
+
 let timerule = new schedule.RecurrenceRule();
 // 8 am at bangkok
 timerule.tz = "Asia/Bangkok";
@@ -85,8 +101,7 @@ timerule.hour = 8;
 
 // fectch data at 8 am everyday
 schedule.scheduleJob(timerule, async () => {
-    await fetchAPI();
-    messageToChannels();
+    await dailyFetch();
 });
 
 let covidEmbedMessage = () =>
