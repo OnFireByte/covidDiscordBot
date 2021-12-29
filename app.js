@@ -87,7 +87,7 @@ const dailyFetch = async () => {
             messageToChannels();
             return;
         }
-
+        console.log("The data is not up-to-date, will fetch data again in next 1 hour");
         setTimeout(dailyFetch, 3600);
     });
 };
