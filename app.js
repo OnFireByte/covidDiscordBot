@@ -76,19 +76,19 @@ const messageToChannels = () => {
     });
 };
 
-const dailyFetch = async () => {
+const dailyFetch = async (tryCount = 0) => {
     const today = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
     await fetchAPI();
     fs.readFile("./Data/data.json", "utf8", async (err, data) => {
         const cacheData = JSON.parse(data);
         const newestData = cacheData[cacheData.length - 1];
         const newestDate = Number(newestData.txn_date.split("-")[2]);
-        if (newestDate == today.getDate()) {
+        if (newestDate == today.getDate() || tryCount >= 5) {
             messageToChannels();
             return;
         }
         console.log("The data is not up-to-date, will fetch data again in next 1 hour");
-        setTimeout(dailyFetch, 3600);
+        setTimeout(dailyFetch(tryCount + 1), 3600);
     });
 };
 
