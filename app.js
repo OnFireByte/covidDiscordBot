@@ -6,6 +6,7 @@ const Discord = require("discord.js");
 const intents = new Discord.Intents(32767);
 const client = new Discord.Client({ intents });
 const createChart = require("./module/createChart.js");
+const { DateTime } = require("luxon");
 
 Number.prototype.comma = function () {
     return this.valueOf()
@@ -77,13 +78,13 @@ const messageToChannels = () => {
 };
 
 const dailyFetch = async (tryCount = 0) => {
-    const today = new Date().toLocaleString("en-US", { timeZone: "Asia/Bangkok" });
+    const today = DateTime.now().setZone("Asia/Bangkok").day;
     await fetchAPI();
     fs.readFile("./Data/data.json", "utf8", async (err, data) => {
         const cacheData = JSON.parse(data);
         const newestData = cacheData[cacheData.length - 1];
         const newestDate = Number(newestData.txn_date.split("-")[2]);
-        if (newestDate == today.getDate() || tryCount >= 5) {
+        if (newestDate == today || tryCount >= 5) {
             messageToChannels();
             return;
         }
