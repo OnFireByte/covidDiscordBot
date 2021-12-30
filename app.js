@@ -34,26 +34,38 @@ const updateData = async (func = () => {}) => {
     });
 };
 
-const fetchAPI = async () => {
-    const rawData = await axios({
-        method: "get",
-        url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
-    });
-    const data = await rawData.data;
-
-    fs.writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), (err) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("Successfully update data.json");
+const fetchAPI = async (tryCount = 0) => {
+    try {
+        const rawData = await axios({
+            method: "get",
+            url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
+        });
+        const data = await rawData.data;
+        fs.writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), (err) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log("Successfully update data.json");
+            }
+        });
+        updateData(() => {
+            console.log("updating chart...");
+            createChart(cacheData, "case", "Data/case.png");
+            createChart(cacheData, "death", "Data/death.png");
+            createChart(cacheData, "recovered", "Data/recovered.png");
+        });
+    } catch {
+        if (tryCount >= 4) {
+            console.log(
+                "We try to fetch for 5 times, but server never respond. So we won't try to fetch again"
+            );
+            return;
         }
-    });
-    updateData(() => {
-        console.log("updating chart...");
-        createChart(cacheData, "case", "Data/case.png");
-        createChart(cacheData, "death", "Data/death.png");
-        createChart(cacheData, "recovered", "Data/recovered.png");
-    });
+        console.log("look like server is down, will try to fetch again in next 5 minute");
+        setTimeout(async () => {
+            await fetchAPI();
+        }, 300000);
+    }
 };
 console.log("Fetching Data...");
 console.log("Updating Data...");
@@ -89,7 +101,7 @@ const dailyFetch = async (tryCount = 0) => {
             return;
         }
         console.log("The data is not up-to-date, will fetch data again in next 1 hour");
-        setTimeout(dailyFetch(tryCount + 1), 3600);
+        setTimeout(dailyFetch(tryCount + 1), 3600000);
     });
 };
 
