@@ -120,7 +120,7 @@ schedule.scheduleJob(timerule, async () => {
 process.stdin.resume();
 process.stdin.setEncoding("utf8");
 
-process.stdin.on("data", function (text) {
+process.stdin.on("data", async (text) => {
     if (text.trim() === "fetch") {
         await fetchAPI();
     }
