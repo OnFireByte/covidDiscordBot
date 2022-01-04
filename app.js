@@ -101,7 +101,9 @@ const dailyFetch = async (tryCount = 0) => {
             return;
         }
         console.log("The data is not up-to-date, will fetch data again in next 1 hour");
-        setTimeout(dailyFetch(tryCount + 1), 3600000);
+        setTimeout(async () => {
+            await dailyFetch(tryCount + 1);
+        }, 3600000);
     });
 };
 
