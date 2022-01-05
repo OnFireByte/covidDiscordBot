@@ -1,5 +1,5 @@
-const fs = require("fs");
-const { ChartJSNodeCanvas } = require("chartjs-node-canvas");
+import { writeFileSync } from "fs";
+import { ChartJSNodeCanvas } from "chartjs-node-canvas";
 
 const width = 1000; //px
 const height = 500; //px
@@ -17,8 +17,8 @@ const format_arr = (arr, mode) => {
     } else if (mode === "date") {
         return arr.map((x) => {
             const rawDateArr = x.txn_date.split("-");
-            date = rawDateArr[2];
-            month = rawDateArr[1];
+            const date = rawDateArr[2];
+            const month = rawDateArr[1];
             return `${date}/${month}`;
         });
     } else {
@@ -55,8 +55,8 @@ const format_mode = (mode) => {
 };
 
 const create = async (arr, mode, path) => {
-    mode_arr = format_arr(arr, mode);
-    date_arr = format_arr(arr, "date");
+    const mode_arr = format_arr(arr, mode);
+    const date_arr = format_arr(arr, "date");
     const prop = format_mode(mode);
 
     const configuration = {
@@ -92,7 +92,7 @@ const create = async (arr, mode, path) => {
     const imageBuffer = await canvasRenderService.renderToBuffer(configuration);
 
     // Write image to file
-    fs.writeFileSync(path, imageBuffer);
+    writeFileSync(path, imageBuffer);
 };
 
-module.exports = create;
+export default create;

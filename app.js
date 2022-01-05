@@ -1,113 +1,20 @@
-require("dotenv").config();
-const axios = require("axios");
-const fs = require("fs");
-const schedule = require("node-schedule");
-const Discord = require("discord.js");
-const intents = new Discord.Intents(32767);
-const client = new Discord.Client({ intents });
-const createChart = require("./module/createChart.js");
-const { DateTime } = require("luxon");
+import { writeFile, readFileSync } from "fs";
+import { RecurrenceRule, scheduleJob } from "node-schedule";
+import dotenv from "dotenv";
+import { Intents, Client, Constants } from "discord.js";
+import { fetchAPI, updateData } from "./module/fetchAndUpdate.js";
+import { dailyFetch } from "./module/dailyFetch.js";
+import { covidEmbedMessage } from "./module/covidEmbedMessage.js";
+const intents = new Intents(32767);
+export const client = new Client({ intents });
 
-Number.prototype.comma = function () {
-    return this.valueOf()
-        .toString()
-        .replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-};
+dotenv.config();
 
-const diff = (a, b) => {
-    return a - b >= 0 ? `+${(a - b).comma()}` : `-${(b - a).comma()}`;
-};
-let cacheData;
-let todayData;
-let yesterdayData;
-const updateData = async (func = () => {}) => {
-    console.log("Updating Data...");
-    fs.readFile("./Data/data.json", "utf8", async (err, data) => {
-        if (!data) {
-            await fetchAPI();
-            return;
-        }
-        cacheData = JSON.parse(data);
-        todayData = cacheData[cacheData.length - 1];
-        yesterdayData = cacheData[cacheData.length - 2];
-        func();
-    });
-};
-
-const fetchAPI = async (tryCount = 0) => {
-    try {
-        const rawData = await axios({
-            method: "get",
-            url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
-        });
-        const data = await rawData.data;
-        fs.writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), (err) => {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log("Successfully update data.json");
-            }
-        });
-        updateData(() => {
-            console.log("updating chart...");
-            createChart(cacheData, "case", "Data/case.png");
-            createChart(cacheData, "death", "Data/death.png");
-            createChart(cacheData, "recovered", "Data/recovered.png");
-        });
-    } catch {
-        if (tryCount >= 4) {
-            console.log(
-                "We try to fetch for 5 times, but server never respond. So we won't try to fetch again"
-            );
-            return;
-        }
-        console.log("look like server is down, will try to fetch again in next 5 minute");
-        setTimeout(async () => {
-            await fetchAPI();
-        }, 300000);
-    }
-};
 console.log("Fetching Data...");
 console.log("Updating Data...");
 fetchAPI();
 
-const messageToChannels = () => {
-    fs.readFile("./Data/channel.json", "utf8", async (err, data) => {
-        channelArr = JSON.parse(data);
-        if (!channelArr) {
-            return;
-        }
-        console.log(channelArr);
-        channelArr.forEach((channelID) => {
-            client.channels.cache
-                .get(channelID)
-                ?.send({ embeds: [covidEmbedMessage()] })
-                .catch((err) =>
-                    console.log(`${err.name}: ${err.message} on channel ID ${channelID}`)
-                );
-        });
-    });
-};
-
-const dailyFetch = async (tryCount = 0) => {
-    const today = DateTime.now().setZone("Asia/Bangkok").day;
-    await fetchAPI();
-    fs.readFile("./Data/data.json", "utf8", async (err, data) => {
-        const cacheData = JSON.parse(data);
-        const newestData = cacheData[cacheData.length - 1];
-        const newestDate = Number(newestData.txn_date.split("-")[2]);
-        if (newestDate == today || tryCount >= 5) {
-            messageToChannels();
-            return;
-        }
-        console.log("The data is not up-to-date, will fetch data again in next 1 hour");
-        setTimeout(async () => {
-            await dailyFetch(tryCount + 1);
-        }, 3600000);
-    });
-};
-
-let timerule = new schedule.RecurrenceRule();
+let timerule = new RecurrenceRule();
 // 8 am at bangkok
 timerule.tz = "Asia/Bangkok";
 timerule.second = 0;
@@ -115,7 +22,7 @@ timerule.minute = 0;
 timerule.hour = 8;
 
 // fectch data at 8 am everyday
-schedule.scheduleJob(timerule, async () => {
+scheduleJob(timerule, async () => {
     await dailyFetch();
 });
 
@@ -127,42 +34,6 @@ process.stdin.on("data", async (text) => {
         await fetchAPI();
     }
 });
-
-let covidEmbedMessage = () =>
-    new Discord.MessageEmbed()
-        .setColor("#FFB247")
-        .setTitle("Today Stat")
-        .addFields(
-            {
-                name: "🤒 New Case",
-                value: `${todayData.new_case.comma()} (${diff(
-                    todayData.new_case,
-                    yesterdayData.new_case
-                )})`,
-                inline: true,
-            },
-            {
-                name: "😥 New Death",
-                value: `${todayData.new_death.comma()} (${diff(
-                    todayData.new_death,
-                    yesterdayData.new_death
-                )})`,
-                inline: true,
-            },
-            {
-                name: "😊 New Recovered",
-                value: `${todayData.new_recovered.comma()} (${diff(
-                    todayData.new_recovered,
-                    yesterdayData.new_recovered
-                )})`,
-                inline: true,
-            },
-            { name: "\u200B", value: "\u200B" },
-            { name: "🤒 Total Case", value: todayData.total_case.comma(), inline: true },
-            { name: "😥 Total Death", value: todayData.total_death.comma(), inline: true },
-            { name: "😊 Total Recovered", value: todayData.total_recovered.comma(), inline: true }
-        )
-        .setFooter(`Update Date: ${todayData.update_date}`);
 
 client.on("ready", () => {
     console.log(
@@ -184,7 +55,7 @@ client.on("ready", () => {
                 name: "status",
                 description: "true if you want to get daily stat, false if you don't.",
                 required: true,
-                type: Discord.Constants.ApplicationCommandOptionTypes.BOOLEAN,
+                type: Constants.ApplicationCommandOptionTypes.BOOLEAN,
             },
         ],
     });
@@ -197,7 +68,7 @@ client.on("ready", () => {
                 name: "type",
                 description: "type of chart: case, death, recovered",
                 required: true,
-                type: Discord.Constants.ApplicationCommandOptionTypes.STRING,
+                type: Constants.ApplicationCommandOptionTypes.STRING,
             },
         ],
     });
@@ -213,13 +84,13 @@ client.on("interactionCreate", async (interaction) => {
     } else if (commandName === "dailystat") {
         const status = options.getBoolean("status");
         if (status) {
-            const channels = await JSON.parse(fs.readFileSync("./Data/channel.json"));
+            const channels = await JSON.parse(readFileSync("./Data/channel.json"));
             if (channels.includes(interaction.channelId)) {
                 interaction.reply("This channel is already registered");
                 return;
             }
 
-            fs.writeFile(
+            writeFile(
                 "./Data/channel.json",
                 JSON.stringify([...channels, interaction.channelId]),
                 (err) => {
@@ -236,13 +107,13 @@ client.on("interactionCreate", async (interaction) => {
                 }
             );
         } else if (!status) {
-            const channels = await JSON.parse(fs.readFileSync("./Data/channel.json"));
+            const channels = await JSON.parse(readFileSync("./Data/channel.json"));
             if (!channels.includes(interaction.channelId)) {
                 interaction.reply("This channel is not registered");
                 return;
             }
 
-            fs.writeFile(
+            writeFile(
                 "./Data/channel.json",
                 JSON.stringify(channels.filter((x) => x !== interaction.channelId)),
                 (err) => {
