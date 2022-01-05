@@ -5,7 +5,7 @@ import createChart from "./createChart.js";
 let cacheData;
 export let todayData;
 export let yesterdayData;
-export const updateData = async (func = () => { }) => {
+export const updateData = async (func = () => {}) => {
     console.log("Updating Data...");
     readFile("./Data/data.json", "utf8", async (_err, data) => {
         if (!data) {
@@ -25,7 +25,7 @@ export const fetchAPI = async (tryCount = 0) => {
             url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
         });
         const data = await rawData.data;
-        writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), (err) => {
+        writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), { flag: "w" }, (err) => {
             if (err) {
                 console.log(err);
             } else {
