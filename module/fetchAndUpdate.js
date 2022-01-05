@@ -27,7 +27,9 @@ export const fetchAPI = async (tryCount = 0) => {
             method: "get",
             url: "https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all",
         });
-        const data = await rawData.data;
+        const data = await rawData.data.filter(
+            (v, i, a) => a.findIndex((t) => t.txn_date === v.txn_date) === i
+        );
         writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), { flag: "w" }, (err) => {
             if (err) {
                 console.log(err);
