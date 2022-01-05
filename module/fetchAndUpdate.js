@@ -1,5 +1,5 @@
 import axios from "axios";
-import { readFile, writeFile } from "fs";
+import { readFile, writeFile, existsSync, mkdirSync } from "fs";
 import createChart from "./createChart.js";
 
 let cacheData;
@@ -19,6 +19,9 @@ export const updateData = async (func = () => {}) => {
     });
 };
 export const fetchAPI = async (tryCount = 0) => {
+    if (!existsSync("./Data")) {
+        mkdirSync("./Data");
+    }
     try {
         const rawData = await axios({
             method: "get",
@@ -30,13 +33,14 @@ export const fetchAPI = async (tryCount = 0) => {
                 console.log(err);
             } else {
                 console.log("Successfully update data.json");
+
+                updateData(() => {
+                    console.log("updating chart...");
+                    createChart(cacheData, "case", "Data/case.png");
+                    createChart(cacheData, "death", "Data/death.png");
+                    createChart(cacheData, "recovered", "Data/recovered.png");
+                });
             }
-        });
-        updateData(() => {
-            console.log("updating chart...");
-            createChart(cacheData, "case", "Data/case.png");
-            createChart(cacheData, "death", "Data/death.png");
-            createChart(cacheData, "recovered", "Data/recovered.png");
         });
     } catch {
         if (tryCount >= 4) {
