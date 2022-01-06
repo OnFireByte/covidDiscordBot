@@ -6,24 +6,19 @@
 
 You have to do this on the first time. No need after that
 
-1. clone repo
-```bash
-git clone https://github.com/OnFireByte/covidDiscordBot
-```
-
-2. install module
+1. install module
 
 ```bash
  npm install
 ```
 
-3. Create ".env" file in root directory
+2. Create ".env" file in root directory
 
 ```bash
  touch .env
 ```
 
-4. In .env file, add this text and your bot's token after that (Do not use whitespace)
+3. In .env file, add this text and your bot's token after that (Do not use whitespace)
 
 ```bash
 DISCORD_TOKEN=#Your Token Here
@@ -53,11 +48,15 @@ These are available command.
  /getcovidstat
 ```
 
-2. Register Daily Data Message
+2. Register daily data message
 
 ```
  /dailystat True|False
 ```
 
 > The same message as /getcovidstat but it will automatically send the message at 8 am every day on that channel.
-> True to get message, False to don't, False by default.
+> True to get message, False to don't, False by default. 3. Get chart of data for previous 30 days
+
+```
+ /getchart infect|death|recovered|all
+```
