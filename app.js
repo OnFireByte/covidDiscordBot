@@ -1,10 +1,11 @@
-import { writeFile, readFileSync } from "fs";
+import { writeFile, readFileSync, writeFileSync, existsSync } from "fs";
 import { RecurrenceRule, scheduleJob } from "node-schedule";
 import dotenv from "dotenv";
 import { Intents, Client, Constants } from "discord.js";
 import { fetchAPI, updateData } from "./module/fetchAndUpdate.js";
 import { dailyFetch } from "./module/dailyFetch.js";
 import { covidEmbedMessage } from "./module/covidEmbedMessage.js";
+import { messageToChannels } from "./module/messageToChannels.js";
 const intents = new Intents(32767);
 export const client = new Client({ intents });
 
@@ -30,8 +31,10 @@ process.stdin.resume();
 process.stdin.setEncoding("utf8");
 
 process.stdin.on("data", async (text) => {
-    if (text.trim() === "fetch") {
+    if (text.trim().toLowerCase() === "fetch") {
         await fetchAPI();
+    } else if (text.trim().toLowerCase() === "mtc") {
+        messageToChannels();
     }
 });
 
@@ -82,6 +85,12 @@ client.on("interactionCreate", async (interaction) => {
     if (commandName === "getcovidstat") {
         updateData(() => interaction.reply({ embeds: [covidEmbedMessage()] }));
     } else if (commandName === "dailystat") {
+        if (!existsSync("./Data")) {
+            mkdirSync("./Data");
+        }
+        if (!existsSync("./Data/channel.json")) {
+            writeFileSync("./Data/channel.json", "[]", { flag: "w" });
+        }
         const status = options.getBoolean("status");
         if (status) {
             const channels = await JSON.parse(readFileSync("./Data/channel.json"));
