@@ -12,10 +12,17 @@ export const updateData = async (func = () => {}) => {
             await fetchAPI();
             return;
         }
-        cacheData = JSON.parse(data);
-        todayData = cacheData[cacheData.length - 1];
-        yesterdayData = cacheData[cacheData.length - 2];
-        func();
+        try {
+            cacheData = JSON.parse(data);
+            todayData = cacheData[cacheData.length - 1];
+            yesterdayData = cacheData[cacheData.length - 2];
+            func();
+        } catch (err) {
+            setTimeout(async () => {
+                await updateData();
+            }, 3000);
+            return;
+        }
     });
 };
 export const fetchAPI = async (tryCount = 0) => {
