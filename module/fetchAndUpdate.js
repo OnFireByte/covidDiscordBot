@@ -5,7 +5,7 @@ import createChart from "./createChart.js";
 let cacheData;
 export let todayData;
 export let yesterdayData;
-export const updateData = async (func = () => {}) => {
+export const updateData = async (func = () => {}, tries = 0) => {
     console.log("Updating Data...");
     readFile("./Data/data.json", "utf8", async (_err, data) => {
         if (!data) {
@@ -18,8 +18,9 @@ export const updateData = async (func = () => {}) => {
             yesterdayData = cacheData[cacheData.length - 2];
             func();
         } catch (err) {
+            if (tries > 5) return;
             setTimeout(async () => {
-                await updateData();
+                await updateData(func, tries + 1);
             }, 3000);
             return;
         }
@@ -43,7 +44,7 @@ export const fetchAPI = async (tryCount = 0) => {
             } else {
                 console.log("Successfully update data.json");
 
-                updateData(() => {
+                await updateData(() => {
                     console.log("updating chart...");
                     createChart(cacheData, "case", "Data/case.png");
                     createChart(cacheData, "death", "Data/death.png");
