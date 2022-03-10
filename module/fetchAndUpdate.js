@@ -38,20 +38,25 @@ export const fetchAPI = async (tryCount = 0) => {
         const data = await rawData.data.filter(
             (v, i, a) => a.findIndex((t) => t.txn_date === v.txn_date) === i
         );
-        writeFile("./Data/data.json", JSON.stringify(data.slice(-30)), { flag: "w" }, (err) => {
-            if (err) {
-                console.log(err);
-            } else {
-                console.log("Successfully update data.json");
+        writeFile(
+            "./Data/data.json",
+            JSON.stringify(data.slice(-30)),
+            { flag: "w" },
+            async (err) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("Successfully update data.json");
 
-                await updateData(() => {
-                    console.log("updating chart...");
-                    createChart(cacheData, "case", "Data/case.png");
-                    createChart(cacheData, "death", "Data/death.png");
-                    createChart(cacheData, "recovered", "Data/recovered.png");
-                });
+                    await updateData(() => {
+                        console.log("updating chart...");
+                        createChart(cacheData, "case", "Data/case.png");
+                        createChart(cacheData, "death", "Data/death.png");
+                        createChart(cacheData, "recovered", "Data/recovered.png");
+                    });
+                }
             }
-        });
+        );
     } catch {
         if (tryCount >= 4) {
             console.log(
