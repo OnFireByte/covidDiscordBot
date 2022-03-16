@@ -1,5 +1,6 @@
 import axios from "axios";
-import { readFile, writeFile, existsSync, mkdirSync } from "fs";
+import { readFile, writeFile } from "fs/promises";
+import { existsSync, mkdirSync } from "fs";
 import createChart from "./createChart.js";
 
 let cacheData;
@@ -7,24 +8,24 @@ export let todayData;
 export let yesterdayData;
 export const updateData = async (func = () => {}, tries = 0) => {
     console.log("Updating Data...");
-    readFile("./Data/data.json", "utf8", async (_err, data) => {
-        if (!data) {
+    const data = await readFile("./Data/data.json", "utf8");
+    if (!data) {
+        await fetchAPI();
+        return;
+    }
+    try {
+        cacheData = await JSON.parse(data);
+        todayData = cacheData[cacheData.length - 1];
+        yesterdayData = cacheData[cacheData.length - 2];
+        func();
+    } catch (err) {
+        if (tries > 5) return;
+        setTimeout(async () => {
             await fetchAPI();
-            return;
-        }
-        try {
-            cacheData = JSON.parse(data);
-            todayData = cacheData[cacheData.length - 1];
-            yesterdayData = cacheData[cacheData.length - 2];
-            func();
-        } catch (err) {
-            if (tries > 5) return;
-            setTimeout(async () => {
-                await updateData(func, tries + 1);
-            }, 3000);
-            return;
-        }
-    });
+            await updateData(func, tries + 1);
+        }, 3000);
+        return;
+    }
 };
 export const fetchAPI = async (tryCount = 0) => {
     if (!existsSync("./Data")) {
