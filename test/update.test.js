@@ -1,5 +1,2 @@
-import { updateData, todayData } from "../module/fetchAndUpdate.js";
-
-(async () => {
-    await updateData(() => console.log(todayData));
-})();
+const obj = { name: "test" };
+console.log(obj?.test);
