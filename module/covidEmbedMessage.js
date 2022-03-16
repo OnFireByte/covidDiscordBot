@@ -9,7 +9,7 @@ export let covidEmbedMessage = () =>
         .addFields(
             {
                 name: "🤒 New Case",
-                value: `${todayData?.new_case??.comma()} (${diff(
+                value: `${todayData?.new_case?.comma()} (${diff(
                     todayData?.new_case,
                     yesterdayData?.new_case
                 )})`,
