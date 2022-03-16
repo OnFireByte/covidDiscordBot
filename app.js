@@ -34,7 +34,7 @@ process.stdin.on("data", async (text) => {
     if (text.trim().toLowerCase() === "fetch") {
         await fetchAPI();
     } else if (text.trim().toLowerCase() === "mtc") {
-        awaitupdateData();
+        await updateData();
         messageToChannels();
     }
 });
