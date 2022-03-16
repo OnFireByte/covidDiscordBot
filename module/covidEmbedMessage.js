@@ -9,7 +9,7 @@ export let covidEmbedMessage = () =>
         .addFields(
             {
                 name: "🤒 New Case",
-                value: `${todayData?.new_case.comma()} (${diff(
+                value: `${todayData?.new_case??.comma()} (${diff(
                     todayData?.new_case,
                     yesterdayData?.new_case
                 )})`,
@@ -17,7 +17,7 @@ export let covidEmbedMessage = () =>
             },
             {
                 name: "😥 New Death",
-                value: `${todayData?.new_death.comma()} (${diff(
+                value: `${todayData?.new_death?.comma()} (${diff(
                     todayData?.new_death,
                     yesterdayData?.new_death
                 )})`,
@@ -25,15 +25,15 @@ export let covidEmbedMessage = () =>
             },
             {
                 name: "😊 New Recovered",
-                value: `${todayData?.new_recovered.comma()} (${diff(
+                value: `${todayData?.new_recovered?.comma()} (${diff(
                     todayData?.new_recovered,
                     yesterdayData?.new_recovered
                 )})`,
                 inline: true,
             },
             { name: "\u200B", value: "\u200B" },
-            { name: "🤒 Total Case", value: todayData?.total_case.comma(), inline: true },
-            { name: "😥 Total Death", value: todayData?.total_death.comma(), inline: true },
-            { name: "😊 Total Recovered", value: todayData?.total_recovered.comma(), inline: true }
+            { name: "🤒 Total Case", value: todayData?.total_case?.comma(), inline: true },
+            { name: "😥 Total Death", value: todayData?.total_death?.comma(), inline: true },
+            { name: "😊 Total Recovered", value: todayData?.total_recovered?.comma(), inline: true }
         )
         .setFooter({ text: `Update Date: ${todayData?.update_date}` });
