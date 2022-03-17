@@ -32,7 +32,6 @@ export let covidEmbedMessage = () =>
                 inline: true,
             },
             { name: "\u200B", value: "\u200B" },
-            { name: "\u200B", value: "\u200B" },
             { name: "🤒 Total Case", value: todayData?.total_case?.comma() || "NaN", inline: true },
             {
                 name: "😥 Total Death",
