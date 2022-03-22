@@ -36,6 +36,8 @@ process.stdin.on("data", async (text) => {
     } else if (text.trim().toLowerCase() === "mtc") {
         await updateData();
         messageToChannels();
+    } else if (text.trim().toLowerCase() === "daily") {
+        await dailyFetch();
     }
 });
 
