@@ -6,7 +6,7 @@ const height = 500; //px
 const backgroundColour = "white";
 const canvasRenderService = new ChartJSNodeCanvas({ width, height, backgroundColour });
 
-const format_arr = (arr, mode) => {
+const format_arr = (array, mode) => {
     let keyword;
     if (mode === "case") {
         keyword = "new_case";
@@ -15,7 +15,7 @@ const format_arr = (arr, mode) => {
     } else if (mode === "recovered") {
         keyword = "new_recovered";
     } else if (mode === "date") {
-        return arr.map((x) => {
+        return array.map((x) => {
             const rawDateArr = x.txn_date.split("-");
             const date = rawDateArr[2];
             const month = rawDateArr[1];
@@ -25,7 +25,7 @@ const format_arr = (arr, mode) => {
         return;
         // throw "invalid mode";
     }
-    return arr.map((x) => x[keyword]);
+    return array.map((x) => x[keyword]);
 };
 
 const format_mode = (mode) => {
@@ -54,9 +54,9 @@ const format_mode = (mode) => {
     }
 };
 
-const create = async (arr, mode, path) => {
-    const mode_arr = format_arr(arr, mode);
-    const date_arr = format_arr(arr, "date");
+const create = async (array, mode, path) => {
+    const mode_arr = format_arr(array, mode);
+    const date_arr = format_arr(array, "date");
     const prop = format_mode(mode);
 
     const configuration = {
