@@ -11,8 +11,6 @@ export const client = new Client({ intents });
 
 dotenv.config();
 
-console.log("Fetching Data...");
-console.log("Updating Data...");
 fetchAPI();
 
 let timerule = new RecurrenceRule();

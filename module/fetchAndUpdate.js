@@ -28,6 +28,7 @@ export const updateData = async (func = () => {}, tries = 0) => {
     }
 };
 export const fetchAPI = async (tryCount = 0) => {
+    console.log("Fetching Data...");
     if (!existsSync("./Data")) {
         mkdirSync("./Data");
     }
