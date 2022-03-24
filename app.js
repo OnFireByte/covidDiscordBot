@@ -24,6 +24,7 @@ timerule.hour = 8;
 
 // fectch data at 8 am everyday
 scheduleJob(timerule, async () => {
+    console.log("Dayly Routine...");
     await dailyFetch();
 });
 
@@ -38,6 +39,8 @@ process.stdin.on("data", async (text) => {
         messageToChannels();
     } else if (text.trim().toLowerCase() === "daily") {
         await dailyFetch();
+    } else {
+        console.log("Unknown command");
     }
 });
 

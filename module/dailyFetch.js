@@ -4,6 +4,7 @@ import { fetchAPI } from "./fetchAndUpdate.js";
 import { messageToChannels } from "./messageToChannels.js";
 
 export const dailyFetch = async (tryCount = 0) => {
+    console.log("On dailyFetch function");
     const today = DateTime.now().setZone("Asia/Bangkok").day;
     await fetchAPI();
     await readFile("./Data/data.json", "utf8", async (_err, data) => {
