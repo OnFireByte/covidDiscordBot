@@ -11,7 +11,7 @@ export const client = new Client({ intents });
 
 dotenv.config();
 
-fetchAPI();
+await fetchAPI();
 
 let timerule = new RecurrenceRule();
 // 8 am at bangkok
