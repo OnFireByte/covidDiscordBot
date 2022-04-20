@@ -14,7 +14,7 @@ jobs:
               run: docker build . --tag covid-discord-bot-docker
 
             - name: Push the Docker image
-              uses: docker/build-push-action
+              uses: docker/build-push-action@v1
               with:
                   username: ${{secrets.DOCKER_USERNAME}}
                   password: ${{secrets.DOCKER_PASSWORD}}
