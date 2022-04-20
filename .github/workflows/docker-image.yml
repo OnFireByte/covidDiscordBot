@@ -9,14 +9,11 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v3
-            - name: Build the Docker image
-              run: docker build . --tag covid-discord-bot-docker
-
-            - name: Push the Docker image
-              uses: docker/build-push-action@v1
+            - name: Build and push the Docker image
+              uses: docker/build-push-action@v2
               with:
                   username: ${{secrets.DOCKER_USERNAME}}
                   password: ${{secrets.DOCKER_PASSWORD}}
-                  repository: byte101/covid-discord-bot-docker
-                  tags: latest, ${{github.run_number}}
+                  context: .
+                  push: true
+                  tags: byte101/covid-discord-bot-docker:latest
