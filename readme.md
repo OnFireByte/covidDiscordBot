@@ -38,6 +38,20 @@ or
  node .
 ```
 
+## Docker Image
+
+### Pull image from Docker hub
+
+```bash
+ docker pull byte101/covid-discord-bot-docker
+```
+
+### Create and run container
+
+```bash
+ docker run -e DISCORD_TOKEN=**YOUR_TOKEN_HERE** byte101/covid-discord-bot-docker
+```
+
 ## Usage
 
 These are available command.
