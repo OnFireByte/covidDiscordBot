@@ -1,16 +1,22 @@
 name: Docker Image CI
 
 on:
-  push:
-    branches: [ main ]
+    push:
+        branches: [main]
 
 jobs:
+    build:
+        runs-on: ubuntu-latest
 
-  build:
+        steps:
+            - uses: actions/checkout@v3
+            - name: Build the Docker image
+              run: docker build . --tag covid-discord-bot-docker
 
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --tag covid-discord-bot-docker:$(date +%s)
+            - name: Push the Docker image
+              uses: docker/build-push-action
+              with:
+                  username: ${{secrets.DOCKER_USERNAME}}
+                  password: ${{secrets.DOCKER_PASSWORD}}
+                  repository: byte101/covid-discord-bot-docker
+                  tags: latest, ${{github.run_number}}
