@@ -1,4 +1,4 @@
-From node:17.9-slim
+From node:17.9-alpine
 WORKDIR /app
 COPY package.json /app
 ARG TARGETPLATFORM
