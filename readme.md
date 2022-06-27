@@ -9,19 +9,19 @@ You have to do this on the first time. No need after that
 1. install module
 
 ```bash
- npm install
+ npm install --only=prod
 ```
 
-2. Create ".env" file in root directory
+2. Create ".env" file in root directory (you can use template from .env.example)
 
 ```bash
- touch .env
+ cp .env.example .env
 ```
 
-3. In .env file, add this text and your bot's token after that (Do not use whitespace)
+3. In .env file, change placeholder with your bot's token (Do not use whitespace)
 
 ```bash
-DISCORD_TOKEN=#Your Token Here
+DISCORD_TOKEN=#YOUR_TOKEN_HERE
 ```
 
 ## How to run
