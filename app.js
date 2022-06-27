@@ -73,9 +73,15 @@ client.on("ready", () => {
         options: [
             {
                 name: "type",
-                description: "type of chart: case, death, recovered",
+                description: "type of chart: Infected, Death, Recovered, and all",
                 required: true,
                 type: Constants.ApplicationCommandOptionTypes.STRING,
+                choices: [
+                    { name: "Infected", value: "infected" },
+                    { name: "Death", value: "death" },
+                    { name: "Recovered", value: "recovered" },
+                    { name: "All", value: "all" },
+                ],
             },
         ],
     });
