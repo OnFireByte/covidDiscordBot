@@ -11,7 +11,8 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; \
     jpeg-dev \
     pango-dev \
     giflib-dev;\ 
-    fi
+    fi;\
+    npm install canvas --build-from-source
 
 Run npm install
 
