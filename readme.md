@@ -1,5 +1,7 @@
 # Covid-19 Discord Bot (Thai)
 
+***Due to API change, this repo is DEPRECATED and ARCHIVED***
+
 > Half-work-half-broken Discord bot that run on Discord.js, providing command to check today's covid stat in thailand via DDC's API
 
 ## Init Setup
